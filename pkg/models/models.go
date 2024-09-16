@@ -1,9 +1,9 @@
 package models
 
 import (
+	"github.com/ollama/ollama/api"
 	"sync"
 	"time"
-  "github.com/ollama/ollama/api"
 )
 
 type OllamaServer struct {
@@ -11,6 +11,6 @@ type OllamaServer struct {
 	Priority    int
 	IsHealthy   bool
 	LastChecked time.Time
-  Models      []api.ListModelResponse
+	Models      []api.ListModelResponse
 	Mutex       sync.RWMutex
 }
