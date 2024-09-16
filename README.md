@@ -13,3 +13,13 @@ cp config.example.json config.json
 ```bash
 go run cmd/gateway/main.go
 ```
+
+- You can send requests to the gateway as you would to a single Ollama server:
+```bash
+curl -X POST http://localhost:9090/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "llama3.1",
+    "prompt": "Hello, world!"
+  }'
+```
