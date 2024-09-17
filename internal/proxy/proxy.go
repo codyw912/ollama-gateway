@@ -24,6 +24,8 @@ func (p *Proxy) Handler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    log.Printf("[Proxy] Routing request %s %s to server %s\n", r.Method, r.URL.Path, server.Address)
+
     targetURL, err := url.Parse(server.Address)
     if err != nil {
         http.Error(w, "Invalid server address", http.StatusInternalServerError)

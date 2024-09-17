@@ -1,6 +1,10 @@
 package loadbalancer
 
-import "github.com/codyw912/ollama-gateway/pkg/models"
+import (
+  "github.com/codyw912/ollama-gateway/pkg/models"
+  "log"
+  "math"
+)
 
 type LoadBalancer interface {
     SelectServer() *models.OllamaServer
@@ -16,7 +20,7 @@ func NewLoadBalancer(servers []*models.OllamaServer) LoadBalancer {
 
 func (lb *priorityLoadBalancer) SelectServer() *models.OllamaServer {
     var selectedServer *models.OllamaServer
-    maxPriority := -1
+    minPriority := math.MaxInt32
 
     for _, server := range lb.Servers {
         server.Mutex.RLock()
@@ -24,11 +28,18 @@ func (lb *priorityLoadBalancer) SelectServer() *models.OllamaServer {
         priority := server.Priority
         server.Mutex.RUnlock()
 
-        if isHealthy && priority > maxPriority {
+        if isHealthy && priority < minPriority {
             selectedServer = server
-            maxPriority = priority
+            minPriority = priority
         }
     }
+
+    if selectedServer != nil {
+        log.Printf("[LoadBalancer] Selected server %s with priority %d\n", selectedServer.Address, selectedServer.Priority)
+    } else {
+        log.Println("[LoadBalancer] No healthy servers available")
+    }
+
     return selectedServer
 }
 

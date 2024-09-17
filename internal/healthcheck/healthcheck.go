@@ -34,23 +34,28 @@ func (hc *healthChecker) healthCheck(server *models.OllamaServer) {
         resp, err := client.Get(server.Address + "/api/tags")
         server.Mutex.Lock()
         if err != nil {
-            log.Printf("Server %s is unhealthy: %v\n", server.Address, err)
+            log.Printf("[HealthCheck] Server %s is unhealthy: %v\n", server.Address, err)
             server.IsHealthy = false
             server.Models = nil
         } else if resp.StatusCode != http.StatusOK {
-            log.Printf("Server %s returned status: %d\n", server.Address, resp.StatusCode)
+            log.Printf("[HealthCheck] Server %s returned status: %d\n", server.Address, resp.StatusCode)
             server.IsHealthy = false
             server.Models = nil
         } else {
             var tagsResponse api.ListResponse
             decoder := json.NewDecoder(resp.Body)
             if err := decoder.Decode(&tagsResponse); err != nil {
-                log.Printf("Server %s invalid JSON: %v\n", server.Address, err)
+                log.Printf("[HealthCheck] Server %s invalid JSON: %v\n", server.Address, err)
                 server.IsHealthy = false
                 server.Models = nil
             } else {
                 server.IsHealthy = true
                 server.Models = tagsResponse.Models
+                modelNames := []string{}
+                for _, model := range tagsResponse.Models {
+                    modelNames = append(modelNames, model.Name)
+                }
+                log.Printf("[HealthCheck] Server %s is healthy. Models: %v\n", server.Address, modelNames)
             }
         }
         server.LastChecked = time.Now()
