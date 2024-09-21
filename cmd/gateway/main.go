@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+    log.Println("Starting Ollama gateway...")
     // Load configuration
     cfg, err := config.LoadConfig("config.json")
     if err != nil {
